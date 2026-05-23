@@ -1,0 +1,5 @@
+aiohttp
+awsiotsdk
+boto3
+python-dotenv
+rich

@@ -1,0 +1,114 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Link your Moulinex account",
+        "description": "Pick the brand and region that match the account you use with the Moulinex / Cookeo app.",
+        "data": { "perimeter": "Account region" }
+      },
+      "paste": {
+        "title": "Authorize Home Assistant",
+        "description": "1. [Open the authorization page]({auth_url}) in a new tab and log in.\n2. The browser will fail to open `{redirect_scheme}…` — that is expected.\n3. Copy the redirect URL and paste it below.\n\n**Where to find the URL:**\n- **Address bar** — if it shows `gsmoduser://tokens#…`, copy it directly.\n- **Console fallback** — otherwise open the developer Console (F12), find the `Failed to launch 'gsmoduser://…'` error, **right-click the blue link** and choose **Copy link address**.",
+        "data": { "redirect_url": "Redirect URL" }
+      },
+      "pick": {
+        "title": "Pick a Cookeo",
+        "description": "Several Cookeo appliances are linked to this account. Pick the one to add now — you can add the others later by repeating this setup.",
+        "data": { "appliance": "Appliance" }
+      }
+    },
+    "abort": {
+      "already_configured": "This Cookeo is already configured.",
+      "no_appliances": "No Cookeo appliances are linked to this account."
+    },
+    "error": {
+      "invalid_redirect": "Could not extract tokens from that URL. Paste either the full address-bar URL or the `Failed to launch 'gsmoduser://…'` line from the browser console.",
+      "seb_api_failed": "Login succeeded but the SEB cloud API rejected the request. Try again in a few seconds."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "state": {
+        "state": {
+          "unknown": "Unknown",
+          "off": "Off",
+          "stopped": "Stopped",
+          "ready": "Ready",
+          "paused": "Paused",
+          "warming": "Preheating",
+          "cooking": "Cooking",
+          "depressurization": "Depressurising",
+          "keep_warm": "Keep warm",
+          "done": "Done",
+          "delayed": "Delayed start",
+          "alert": "Alert"
+        }
+      },
+      "mode": {
+        "name": "Mode",
+        "state": {
+          "unknown": "Unknown",
+          "off": "Off",
+          "manual": "Manual",
+          "program": "Program",
+          "recipe": "Recipe",
+          "ingredient_cooking": "Ingredient cooking"
+        }
+      },
+      "progress": { "name": "Progress" },
+      "remaining_time": { "name": "Remaining time" },
+      "operation_start": { "name": "Cooking started" },
+      "end_time": { "name": "Estimated end" },
+      "target_temperature": { "name": "Target temperature" },
+      "recipe_title": { "name": "Recipe" },
+      "recipe_step": { "name": "Step" },
+      "program": {
+        "name": "Program",
+        "state": {
+          "unknown": "Unknown",
+          "none": "None",
+          "cooking_low_pressure": "Low pressure cooking",
+          "cooking_high_pressure": "Pressure cooking",
+          "cooking_ultra_high_pressure": "Ultra high pressure cooking",
+          "cooking_high_pressure_classic": "Pressure cooking",
+          "cooking_low_pressure_classic": "Low pressure cooking",
+          "cooking_high_pressure_mini": "Pressure cooking (Mini)",
+          "cooking_low_pressure_mini": "Low pressure cooking (Mini)",
+          "browning": "Stir fry",
+          "browning_low": "Low stir fry",
+          "browning_medium": "Medium stir fry",
+          "browning_high": "High stir fry",
+          "browning_mini": "Stir fry (Mini)",
+          "simmering": "Simmer",
+          "simmering_low": "Low simmer",
+          "simmering_medium": "Medium simmer",
+          "simmering_high": "High simmer",
+          "simmering_mini": "Simmer (Mini)",
+          "steam_low": "Sweet steam cooking",
+          "steam_high": "Very high steam cooking",
+          "slow_cooking": "Soft cooking",
+          "slow_cooking_mini": "Soft cooking (Mini)",
+          "keep_warm": "Keep warm",
+          "keep_warm_iot": "Keep warm",
+          "keep_warm_mini": "Keep warm (Mini)",
+          "reheat": "Reheating"
+        }
+      }
+    },
+    "binary_sensor": {
+      "connected": { "name": "Connection" }
+    },
+    "event": {
+      "notification": {
+        "name": "Notification",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "unknown": "Unknown code"
+            }
+          }
+        }
+      }
+    }
+  }
+}

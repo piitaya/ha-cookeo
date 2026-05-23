@@ -1,0 +1,114 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Lier votre compte Moulinex",
+        "description": "Choisissez la marque et la région correspondant au compte que vous utilisez avec l'application Moulinex / Cookeo.",
+        "data": { "perimeter": "Région du compte" }
+      },
+      "paste": {
+        "title": "Autoriser Home Assistant",
+        "description": "1. [Ouvrir la page d'autorisation]({auth_url}) dans un nouvel onglet et connectez-vous.\n2. Le navigateur affichera une erreur en essayant d'ouvrir `{redirect_scheme}…` — c'est normal.\n3. Copiez l'URL de redirection et collez-la ci-dessous.\n\n**Où trouver l'URL :**\n- **Barre d'adresse** — si elle affiche `gsmoduser://tokens#…`, copiez-la directement.\n- **Console (fallback)** — sinon ouvrez la Console développeur (F12), trouvez l'erreur `Failed to launch 'gsmoduser://…'`, **clic droit sur le lien bleu** puis **Copier l'adresse du lien**.",
+        "data": { "redirect_url": "URL de redirection" }
+      },
+      "pick": {
+        "title": "Choisir un Cookeo",
+        "description": "Plusieurs Cookeo sont liés à ce compte. Choisissez celui à ajouter maintenant — vous pourrez ajouter les autres en répétant cette configuration.",
+        "data": { "appliance": "Appareil" }
+      }
+    },
+    "abort": {
+      "already_configured": "Ce Cookeo est déjà configuré.",
+      "no_appliances": "Aucun Cookeo n'est lié à ce compte."
+    },
+    "error": {
+      "invalid_redirect": "Impossible d'extraire les tokens de cette URL. Collez soit l'URL complète de la barre d'adresse, soit la ligne `Failed to launch 'gsmoduser://…'` de la console du navigateur.",
+      "seb_api_failed": "Connexion réussie mais l'API cloud SEB a refusé la requête. Réessayez dans quelques secondes."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "state": {
+        "state": {
+          "unknown": "Inconnu",
+          "off": "Éteint",
+          "stopped": "Arrêté",
+          "ready": "Prêt",
+          "paused": "En pause",
+          "warming": "Préchauffage",
+          "cooking": "Cuisson",
+          "depressurization": "Décompression",
+          "keep_warm": "Maintien au chaud",
+          "done": "Terminé",
+          "delayed": "Départ différé",
+          "alert": "Alerte"
+        }
+      },
+      "mode": {
+        "name": "Mode",
+        "state": {
+          "unknown": "Inconnu",
+          "off": "Éteint",
+          "manual": "Manuel",
+          "program": "Programme",
+          "recipe": "Recette",
+          "ingredient_cooking": "Cuisson par ingrédient"
+        }
+      },
+      "progress": { "name": "Progression" },
+      "remaining_time": { "name": "Temps restant" },
+      "operation_start": { "name": "Début de cuisson" },
+      "end_time": { "name": "Fin estimée" },
+      "target_temperature": { "name": "Température cible" },
+      "recipe_title": { "name": "Recette en cours" },
+      "recipe_step": { "name": "Étape" },
+      "program": {
+        "name": "Programme",
+        "state": {
+          "unknown": "Inconnu",
+          "none": "Aucun",
+          "cooking_low_pressure": "Cuisson basse pression",
+          "cooking_high_pressure": "Cuisson sous pression",
+          "cooking_ultra_high_pressure": "Cuisson ultra haute pression",
+          "cooking_high_pressure_classic": "Cuisson sous pression",
+          "cooking_low_pressure_classic": "Cuisson basse pression",
+          "cooking_high_pressure_mini": "Cuisson sous pression (Mini)",
+          "cooking_low_pressure_mini": "Cuisson basse pression (Mini)",
+          "browning": "Rissolage",
+          "browning_low": "Rissolage doux",
+          "browning_medium": "Rissolage moyen",
+          "browning_high": "Rissolage fort",
+          "browning_mini": "Rissolage (Mini)",
+          "simmering": "Mijotage",
+          "simmering_low": "Mijotage doux",
+          "simmering_medium": "Mijotage moyen",
+          "simmering_high": "Mijotage fort",
+          "simmering_mini": "Mijotage (Mini)",
+          "steam_low": "Vapeur douce",
+          "steam_high": "Vapeur boost",
+          "slow_cooking": "Cuisson douce",
+          "slow_cooking_mini": "Cuisson douce (Mini)",
+          "keep_warm": "Maintien au chaud",
+          "keep_warm_iot": "Maintien au chaud",
+          "keep_warm_mini": "Maintien au chaud (Mini)",
+          "reheat": "Réchauffage"
+        }
+      }
+    },
+    "binary_sensor": {
+      "connected": { "name": "Connexion" }
+    },
+    "event": {
+      "notification": {
+        "name": "Notification",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "unknown": "Code inconnu"
+            }
+          }
+        }
+      }
+    }
+  }
+}

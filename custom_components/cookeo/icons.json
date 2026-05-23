@@ -1,0 +1,21 @@
+{
+  "entity": {
+    "sensor": {
+      "state": { "default": "mdi:pot-steam" },
+      "mode": { "default": "mdi:cog-outline" },
+      "progress": { "default": "mdi:progress-clock" },
+      "remaining_time": { "default": "mdi:timer-sand" },
+      "operation_start": { "default": "mdi:clock-start" },
+      "end_time": { "default": "mdi:clock-end" },
+      "program": { "default": "mdi:book-open-variant" },
+      "recipe_title": { "default": "mdi:silverware-variant" },
+      "recipe_step": { "default": "mdi:format-list-numbered" }
+    },
+    "binary_sensor": {
+      "connected": { "default": "mdi:cloud" }
+    },
+    "event": {
+      "notification": { "default": "mdi:bell-ring-outline" }
+    }
+  }
+}

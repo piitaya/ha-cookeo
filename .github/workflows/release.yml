@@ -1,0 +1,32 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set manifest version from tag
+        run: |
+          version="${{ github.event.release.tag_name }}"
+          version="${version#v}"
+          jq --arg v "$version" '.version = $v' \
+            custom_components/cookeo/manifest.json > /tmp/manifest.json
+          mv /tmp/manifest.json custom_components/cookeo/manifest.json
+
+      - name: Zip integration
+        run: |
+          cd custom_components/cookeo
+          zip -r ../../cookeo.zip .
+
+      - name: Attach ZIP to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: cookeo.zip

@@ -1,0 +1,12 @@
+{
+  "domain": "cookeo",
+  "name": "Cookeo",
+  "codeowners": ["@piitaya"],
+  "config_flow": true,
+  "documentation": "https://github.com/piitaya/ha-cookeo",
+  "integration_type": "device",
+  "iot_class": "cloud_push",
+  "issue_tracker": "https://github.com/piitaya/ha-cookeo/issues",
+  "requirements": ["awsiotsdk>=1.21.0", "boto3>=1.28.0"],
+  "version": "1.0.0"
+}
