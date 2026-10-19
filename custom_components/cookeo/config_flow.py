@@ -2,15 +2,13 @@
 
 UX flow:
 
-1. **start** — explain what's going to happen, show the auth URL.
-   The user opens it in a browser, logs in with their Moulinex account.
-   After login, Salesforce redirects to ``gsmoduser://tokens#…`` —
-   the browser shows a "no app to open this URL" error but the address
-   bar contains the tokens. The user pastes that URL back.
-2. **paste** — extract the tokens, refresh once to validate, federate
-   Cognito, fetch the user's appliances. If multiple Cookeos, ask which.
-3. **pick** — multi-appliance disambiguation (when applicable).
-4. **created** — config entry stored.
+1. **user** — pick the brand/market and enter the Moulinex account
+   email and password. The integration logs in on the user's behalf;
+   the password is used once and never stored. Then refresh once to
+   validate and fetch the user's appliances. If multiple Cookeos, ask
+   which.
+2. **pick** — multi-appliance disambiguation (when applicable).
+3. **created** — config entry stored.
 """
 
 from __future__ import annotations
@@ -18,15 +16,22 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+import aiohttp
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.const import CONF_EMAIL, CONF_PASSWORD
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.selector import (
+    TextSelector,
+    TextSelectorConfig,
+    TextSelectorType,
+)
 
 from .const import CONF_APPLIANCE, CONF_PROFILE_PERIMETER, CONF_TOKENS, DOMAIN
-from .lib import ApplianceInfo, SF_REDIRECT_URI, Tokens
+from .lib import ApplianceInfo, Tokens
 from .lib import oauth, seb_api
-from .lib.oauth import OAuthError
+from .lib.oauth import LoginError, OAuthError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -49,75 +54,71 @@ class CookeoFlow(ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
     def __init__(self) -> None:
-        self._state: str | None = None
         self._tokens: Tokens | None = None
         self._profile_perimeter: str | None = None
         self._appliances: list[ApplianceInfo] = []
-        self._auth_url: str | None = None
-        self._auth_url_state: str | None = None
 
     # ------------------------------------------------------------- step user
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Initial step — pick the brand/market and show the auth URL."""
+        """Pick the brand/market and log in with the account credentials."""
+        errors: dict[str, str] = {}
+
         if user_input is not None:
             perim_key = user_input["perimeter"]
             perim, market, lang, _label = next(
                 p for p in PERIMETERS if f"{p[0]}-{p[1]}-{p[2]}" == perim_key
             )
-            self._auth_url, self._auth_url_state = oauth.build_authorize_url(
-                profile_perimeter=perim, market=market, lang=lang
-            )
             # We need the Salesforce profilePerimeter (e.g. ``MOULINEX_FR``)
             # to call SEB APIs later. Derive it the same way the official
             # app does.
             self._profile_perimeter = f"{perim.upper()}_{market.upper()}"
-            return await self.async_step_paste()
-
-        return self.async_show_form(
-            step_id="user",
-            data_schema=vol.Schema(
-                {
-                    vol.Required("perimeter", default="moulinex-FR-fr"): vol.In(
-                        {f"{p[0]}-{p[1]}-{p[2]}": p[3] for p in PERIMETERS}
-                    )
-                }
-            ),
-        )
-
-    # ------------------------------------------------------------ step paste
-
-    async def async_step_paste(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
-        """Show the auth URL + ask the user to paste the redirect URL."""
-        errors: dict[str, str] = {}
-
-        if user_input is not None:
-            raw = user_input.get("redirect_url", "").strip()
             try:
-                self._tokens = oauth.parse_redirect(raw, self._auth_url_state)
-            except OAuthError as err:
-                _LOGGER.debug("paste step OAuth parse failed: %s", err)
-                errors["base"] = "invalid_redirect"
+                self._tokens = await oauth.login(
+                    user_input[CONF_EMAIL],
+                    user_input[CONF_PASSWORD],
+                    profile_perimeter=perim,
+                    market=market,
+                    lang=lang,
+                )
+            except LoginError as err:
+                errors["base"] = err.reason
+            except (OAuthError, aiohttp.ClientError, TimeoutError) as err:
+                _LOGGER.warning("SEB login failed: %s", err)
+                errors["base"] = "cannot_connect"
             else:
-                return await self._async_after_login()
+                return await self._async_after_login(user_input)
 
-        assert self._auth_url is not None
-        return self.async_show_form(
-            step_id="paste",
-            data_schema=vol.Schema({vol.Required("redirect_url"): str}),
-            description_placeholders={
-                "auth_url": self._auth_url,
-                "redirect_scheme": SF_REDIRECT_URI,
-            },
-            errors=errors,
+        return self._async_show_user_form(user_input, errors)
+
+    def _async_show_user_form(
+        self, user_input: dict[str, Any] | None, errors: dict[str, str]
+    ) -> ConfigFlowResult:
+        schema = vol.Schema(
+            {
+                vol.Required("perimeter", default="moulinex-FR-fr"): vol.In(
+                    {f"{p[0]}-{p[1]}-{p[2]}": p[3] for p in PERIMETERS}
+                ),
+                vol.Required(CONF_EMAIL): TextSelector(
+                    TextSelectorConfig(type=TextSelectorType.EMAIL, autocomplete="username")
+                ),
+                vol.Required(CONF_PASSWORD): TextSelector(
+                    TextSelectorConfig(
+                        type=TextSelectorType.PASSWORD, autocomplete="current-password"
+                    )
+                ),
+            }
         )
+        if user_input is not None:
+            schema = self.add_suggested_values_to_schema(
+                schema, {k: v for k, v in user_input.items() if k != CONF_PASSWORD}
+            )
+        return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
 
-    async def _async_after_login(self) -> ConfigFlowResult:
-        """Common path once we have tokens: refresh, attach policy, fetch profile."""
+    async def _async_after_login(self, user_input: dict[str, Any]) -> ConfigFlowResult:
+        """Common path once we have tokens: refresh, fetch profile."""
         assert self._tokens is not None
         session = async_get_clientsession(self.hass)
 
@@ -131,12 +132,7 @@ class CookeoFlow(ConfigFlow, domain=DOMAIN):
             )
         except Exception as err:  # noqa: BLE001
             _LOGGER.warning("post-login SEB API failed: %s", err)
-            return self.async_show_form(
-                step_id="paste",
-                data_schema=vol.Schema({vol.Required("redirect_url"): str}),
-                description_placeholders={"auth_url": self._auth_url or ""},
-                errors={"base": "seb_api_failed"},
-            )
+            return self._async_show_user_form(user_input, {"base": "seb_api_failed"})
 
         # Pull profilePerimeter from the response — it's authoritative.
         self._profile_perimeter = profile.get("profilePerimeter") or self._profile_perimeter

@@ -6,8 +6,9 @@ and logs field-level diffs in a change panel.
 
     python scripts/debug.py
 
-Reads credentials from .env at the repo root. Bootstrap on first run
-writes the refresh_token back into .env. Read-only. Ctrl+C to exit.
+Reads credentials from .env at the repo root. Without a refresh_token,
+logs in with COOKEO_EMAIL / COOKEO_PASSWORD (asked for when missing)
+and writes the refresh_token back into .env. Read-only. Ctrl+C to exit.
 """
 
 from __future__ import annotations
@@ -15,7 +16,6 @@ from __future__ import annotations
 import asyncio
 import os
 import sys
-import webbrowser
 from collections import deque
 from datetime import datetime
 from pathlib import Path
@@ -27,7 +27,7 @@ from rich.console import Console
 from rich.layout import Layout
 from rich.live import Live
 from rich.panel import Panel
-from rich.prompt import IntPrompt
+from rich.prompt import IntPrompt, Prompt
 from rich.table import Table
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -58,153 +58,14 @@ console = Console()
 # ---------------------------------------------------------------- bootstrap
 
 
-def _read_clipboard() -> str | None:
-    """Return the system clipboard contents, or ``None`` if unsupported."""
-    import shutil
-    import subprocess
-
-    for cmd in (["pbpaste"], ["xclip", "-selection", "clipboard", "-o"], ["wl-paste"]):
-        if not shutil.which(cmd[0]):
-            continue
-        try:
-            out = subprocess.run(cmd, capture_output=True, text=True, timeout=2)
-            if out.returncode == 0:
-                return out.stdout
-        except (subprocess.TimeoutExpired, OSError):
-            continue
-    return None
-
-
-async def _bootstrap(session: aiohttp.ClientSession, perimeter: str) -> Tokens:
-    """Walk the user through the OAuth implicit flow and return tokens.
-
-    Strategies, in order of priority:
-    1. ``COOKEO_AUTH_URL`` env var
-    2. ``--auth-url-file <path>`` flag
-    3. Playwright auto-capture if installed (drives a headed browser
-       and intercepts the ``gsmoduser://`` redirect)
-    4. Clipboard polling (open browser, user copies URL with cmd+L/C)
-    """
-    auth_url, _ = oauth.build_authorize_url(profile_perimeter=perimeter)
-
-    raw: str | None = os.environ.get("COOKEO_AUTH_URL")
-    if raw:
-        console.print("[dim]using COOKEO_AUTH_URL from env[/]")
-    elif "--auth-url-file" in sys.argv:
-        idx = sys.argv.index("--auth-url-file")
-        raw = Path(sys.argv[idx + 1]).read_text().strip()
-        console.print(f"[dim]using URL from {sys.argv[idx + 1]}[/]")
-    elif "--no-playwright" not in sys.argv and _playwright_available():
-        raw = await _capture_with_playwright(auth_url)
-    else:
-        console.print("\n[bold]Opening browser to log in…[/]")
-        console.print(f"  [cyan]{auth_url}[/]")
-        webbrowser.open(auth_url)
-        console.print(
-            "\nAfter login the browser will fail to open "
-            "[dim]gsmoduser://tokens#…[/] — that is expected.\n"
-            "Click the address bar (cmd+L), copy it (cmd+C), then come back here.\n"
-            "[dim]Waiting for clipboard… (Ctrl+C to abort)[/]"
-        )
-        raw = await _wait_for_clipboard_url()
-
-    tokens = oauth.parse_redirect(raw or "", expected_state=None)
+async def _bootstrap(brand: str, market: str) -> Tokens:
+    """Log in with COOKEO_EMAIL / COOKEO_PASSWORD, asking for whichever is missing."""
+    email = os.environ.get("COOKEO_EMAIL") or Prompt.ask("Moulinex account email")
+    password = os.environ.get("COOKEO_PASSWORD") or Prompt.ask("Password", password=True)
+    tokens = await oauth.login(email, password, profile_perimeter=brand, market=market)
     if not tokens.refresh_token:
-        raise SystemExit("No refresh_token in pasted URL — re-run and retry.")
+        raise SystemExit("Login returned no refresh_token.")
     return tokens
-
-
-def _playwright_available() -> bool:
-    try:
-        import playwright.async_api  # noqa: F401
-        return True
-    except ImportError:
-        return False
-
-
-async def _capture_with_playwright(auth_url: str) -> str:
-    """Launch a headed Chromium, drive the OAuth flow, capture the redirect URL.
-
-    Fragments (``#access_token=…``) are client-side and don't appear in
-    HTTP requests, so ``requestfailed`` strips them. Instead we look at
-    HTTP 3xx ``Location`` headers (Salesforce uses an HTTP redirect to
-    the ``gsmoduser://`` URL with the fragment intact).
-    """
-    from playwright.async_api import async_playwright
-
-    console.print("\n[bold]Launching browser via Playwright…[/]")
-    console.print("[dim]Log in normally — the script will catch the redirect automatically.[/]")
-
-    loop = asyncio.get_running_loop()
-    captured: asyncio.Future[str] = loop.create_future()
-
-    def _try_set(url: str) -> None:
-        if captured.done() or not url.startswith("gsmoduser://") or "#" not in url:
-            return
-        loop.call_soon_threadsafe(captured.set_result, url)
-
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=False)
-        context = await browser.new_context()
-        page = await context.new_page()
-
-        # JS-driven path: Salesforce calls ``window.location.href =
-        # "gsmoduser://tokens#…"`` which Chromium can't resolve. The
-        # full URL (with fragment) ends up in the console error.
-        import re
-        URL_RE = re.compile(r"gsmoduser://[^\s'\"]+")
-
-        def _on_console(msg: Any) -> None:
-            text = msg.text
-            m = URL_RE.search(text)
-            if m:
-                _try_set(m.group(0))
-
-        # Backup paths in case Salesforce flips to HTTP redirect.
-        def _on_response(response: Any) -> None:
-            if 300 <= response.status < 400:
-                _try_set(response.headers.get("location", ""))
-
-        def _on_framenav(frame: Any) -> None:
-            _try_set(frame.url)
-
-        page.on("console", _on_console)
-        page.on("pageerror", lambda err: _try_set(str(err)))
-        page.on("response", _on_response)
-        page.on("framenavigated", _on_framenav)
-
-        try:
-            await page.goto(auth_url)
-        except Exception:
-            # The final navigation to gsmoduser:// raises; ignored.
-            pass
-
-        try:
-            url = await asyncio.wait_for(captured, timeout=300)
-        except asyncio.TimeoutError:
-            await browser.close()
-            raise SystemExit("Timed out waiting for OAuth redirect (5 min).")
-        finally:
-            await browser.close()
-
-    console.print("[green]✓ captured URL via Playwright[/]")
-    return url
-
-
-async def _wait_for_clipboard_url(poll_s: float = 0.5, timeout_s: float = 300) -> str:
-    """Poll the system clipboard until a ``gsmoduser://`` URL appears."""
-    deadline = asyncio.get_running_loop().time() + timeout_s
-    last_seen = ""
-    while True:
-        if asyncio.get_running_loop().time() > deadline:
-            raise SystemExit("Timed out waiting for clipboard URL.")
-        clip = _read_clipboard() or ""
-        if clip != last_seen:
-            last_seen = clip
-            if "gsmoduser://" in clip:
-                console.print("[green]✓ captured URL from clipboard[/]")
-                return clip
-        await asyncio.sleep(poll_s)
 
 
 def _persist_env(key: str, value: str) -> None:
@@ -346,7 +207,7 @@ async def main() -> int:
     async with aiohttp.ClientSession() as session:
         if not refresh_token:
             console.print("[yellow]No COOKEO_REFRESH_TOKEN in .env — running bootstrap login.[/]")
-            tokens = await _bootstrap(session, brand)
+            tokens = await _bootstrap(brand, market)
         else:
             tokens = await oauth.refresh(session, refresh_token)
 

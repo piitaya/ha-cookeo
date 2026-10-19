@@ -3,13 +3,12 @@
     "step": {
       "user": {
         "title": "Lier votre compte Moulinex",
-        "description": "Choisissez la marque et la région correspondant au compte que vous utilisez avec l'application Moulinex / Cookeo.",
-        "data": { "perimeter": "Région du compte" }
-      },
-      "paste": {
-        "title": "Autoriser Home Assistant",
-        "description": "1. [Ouvrir la page d'autorisation]({auth_url}) dans un nouvel onglet et connectez-vous.\n2. Le navigateur affichera une erreur en essayant d'ouvrir `{redirect_scheme}…` — c'est normal.\n3. Copiez l'URL de redirection et collez-la ci-dessous.\n\n**Où trouver l'URL :**\n- **Barre d'adresse** — si elle affiche `gsmoduser://tokens#…`, copiez-la directement.\n- **Console (fallback)** — sinon ouvrez la Console développeur (F12), trouvez l'erreur `Failed to launch 'gsmoduser://…'`, **clic droit sur le lien bleu** puis **Copier l'adresse du lien**.",
-        "data": { "redirect_url": "URL de redirection" }
+        "description": "Connectez-vous avec le compte que vous utilisez dans l'application Moulinex / Cookeo. Le mot de passe sert uniquement à la connexion et n'est pas enregistré.",
+        "data": {
+          "perimeter": "Région du compte",
+          "email": "E-mail",
+          "password": "Mot de passe"
+        }
       },
       "pick": {
         "title": "Choisir un Cookeo",
@@ -22,7 +21,11 @@
       "no_appliances": "Aucun Cookeo n'est lié à ce compte."
     },
     "error": {
-      "invalid_redirect": "Impossible d'extraire les tokens de cette URL. Collez soit l'URL complète de la barre d'adresse, soit la ligne `Failed to launch 'gsmoduser://…'` de la console du navigateur.",
+      "invalid_auth": "E-mail ou mot de passe incorrect.",
+      "email_not_verified": "L'adresse e-mail de ce compte n'est pas encore confirmée. Cliquez sur le lien de l'e-mail de confirmation envoyé par SEB, puis réessayez.",
+      "account_locked": "Trop de tentatives échouées. Le compte est bloqué pendant 15 minutes.",
+      "password_reset_required": "SEB demande de réinitialiser le mot de passe de ce compte. Réinitialisez-le dans l'application Moulinex, puis réessayez.",
+      "cannot_connect": "Impossible de joindre le service de connexion SEB. Réessayez plus tard.",
       "seb_api_failed": "Connexion réussie mais l'API cloud SEB a refusé la requête. Réessayez dans quelques secondes."
     }
   },

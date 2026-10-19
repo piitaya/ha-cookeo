@@ -3,13 +3,12 @@
     "step": {
       "user": {
         "title": "Link your Moulinex account",
-        "description": "Pick the brand and region that match the account you use with the Moulinex / Cookeo app.",
-        "data": { "perimeter": "Account region" }
-      },
-      "paste": {
-        "title": "Authorize Home Assistant",
-        "description": "1. [Open the authorization page]({auth_url}) in a new tab and log in.\n2. The browser will fail to open `{redirect_scheme}…` — that is expected.\n3. Copy the redirect URL and paste it below.\n\n**Where to find the URL:**\n- **Address bar** — if it shows `gsmoduser://tokens#…`, copy it directly.\n- **Console fallback** — otherwise open the developer Console (F12), find the `Failed to launch 'gsmoduser://…'` error, **right-click the blue link** and choose **Copy link address**.",
-        "data": { "redirect_url": "Redirect URL" }
+        "description": "Log in with the account you use in the Moulinex / Cookeo app. Your password is only used to log in and is not stored.",
+        "data": {
+          "perimeter": "Account region",
+          "email": "Email",
+          "password": "Password"
+        }
       },
       "pick": {
         "title": "Pick a Cookeo",
@@ -22,7 +21,11 @@
       "no_appliances": "No Cookeo appliances are linked to this account."
     },
     "error": {
-      "invalid_redirect": "Could not extract tokens from that URL. Paste either the full address-bar URL or the `Failed to launch 'gsmoduser://…'` line from the browser console.",
+      "invalid_auth": "Invalid email or password.",
+      "email_not_verified": "The email address of this account is not confirmed yet. Click the link in the confirmation email from SEB, then try again.",
+      "account_locked": "Too many failed attempts. The account is locked for 15 minutes.",
+      "password_reset_required": "SEB requires a password reset for this account. Reset it in the Moulinex app, then try again.",
+      "cannot_connect": "Could not reach the SEB login service. Try again later.",
       "seb_api_failed": "Login succeeded but the SEB cloud API rejected the request. Try again in a few seconds."
     }
   },
