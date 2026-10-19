@@ -69,19 +69,9 @@ Follow the on-screen instructions (see "Authentication" below).
 
 ## Authentication
 
-Setup uses a one-time browser bridge to your existing Moulinex / SEB
-account. Your password is never entered in Home Assistant.
+Setup asks for the brand / market of your Moulinex account, then the email and password you use in the Moulinex or Cookeo app. Home Assistant logs in once with them and keeps only the resulting refresh token, which it rotates automatically. The password is not stored.
 
-1. Pick the brand / market that matches your Moulinex account.
-2. Open the authorisation URL the integration prints, log in.
-3. After login the browser will fail to open a `gsmoduser://tokens#…`
-   URL — that is expected. Copy the full URL from the address bar.
-4. Paste it back into the Home Assistant dialog.
-
-The integration stores the resulting refresh token and rotates it
-automatically. If it ever gets revoked (logged out everywhere, password
-change…), Home Assistant triggers a reauth that replays the same browser
-flow.
+If the refresh token gets revoked (password change, logged out everywhere), remove the integration and add it again.
 
 ## Limitations
 
@@ -107,9 +97,7 @@ uv pip install -r requirements_dev.txt
 .venv/bin/python scripts/debug.py
 ```
 
-On first run it walks you through the same browser bootstrap as the HA
-config flow, then writes the refresh token to a local `.env` file that
-subsequent runs reuse.
+On first run it logs in with `COOKEO_EMAIL` and `COOKEO_PASSWORD` from `.env` (or asks for them), then writes the refresh token to `.env` for the next runs.
 
 ## License
 

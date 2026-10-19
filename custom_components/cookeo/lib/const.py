@@ -12,8 +12,8 @@ SF_BASE = "https://account.groupeseb.com"
 SF_CLIENT_ID = (
     "3MVG99qusVZJwhskrTckKb5cJcadZj.gO2CSs265Vz0qQMGWsSZSBM5cTZ2nP9GXu04o7iOcczoNdXtJ5VWSZ"
 )
-#: Custom-scheme redirect URI. The browser will fail to open it, which
-#: is exactly what we want — the user pastes the URL back to us.
+#: Custom-scheme redirect URI registered for the mobile app. The login
+#: never opens it: the tokens are read from the redirect itself.
 SF_REDIRECT_URI = "gsmoduser://tokens"
 
 
