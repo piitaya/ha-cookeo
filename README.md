@@ -17,6 +17,7 @@ The non-cloud Cookeo Connect (Bluetooth-only) is not supported.
 | Model | Tested |
 | --- | --- |
 | Cookeo Touch WiFi | ✓ |
+| Cookeo Touch Pro WiFi | |
 | Cookeo Touch Mini WiFi | |
 
 Other SEB cloud robots (Companion, OptiGrill, CakeFactory, …) use the
