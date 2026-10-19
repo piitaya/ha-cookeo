@@ -5,15 +5,17 @@
         "title": "Link your Moulinex account",
         "description": "Log in with the account you use in the Moulinex / Cookeo app. Your password is only used to log in and is not stored.",
         "data": {
-          "perimeter": "Account region",
+          "region": "Account region",
           "email": "Email",
           "password": "Password"
         }
       },
       "pick": {
         "title": "Pick a Cookeo",
-        "description": "Several Cookeo appliances are linked to this account. Pick the one to add now — you can add the others later by repeating this setup.",
-        "data": { "appliance": "Appliance" }
+        "description": "Several Cookeo appliances are linked to this account. Pick the one to add now, you can add the others later by repeating this setup.",
+        "data": {
+          "appliance": "Appliance"
+        }
       }
     },
     "abort": {
@@ -25,15 +27,14 @@
       "email_not_verified": "The email address of this account is not confirmed yet. Click the link in the confirmation email from SEB, then try again.",
       "account_locked": "Too many failed attempts. The account is locked for 15 minutes.",
       "password_reset_required": "SEB requires a password reset for this account. Reset it in the Moulinex app, then try again.",
-      "cannot_connect": "Could not reach the SEB login service. Try again later.",
-      "seb_api_failed": "Login succeeded but the SEB cloud API rejected the request. Try again in a few seconds."
+      "cannot_connect": "Could not connect to the SEB cloud. Try again later.",
+      "unknown": "Unexpected error."
     }
   },
   "entity": {
     "sensor": {
       "state": {
         "state": {
-          "unknown": "Unknown",
           "off": "Off",
           "stopped": "Stopped",
           "ready": "Ready",
@@ -50,7 +51,6 @@
       "mode": {
         "name": "Mode",
         "state": {
-          "unknown": "Unknown",
           "off": "Off",
           "manual": "Manual",
           "program": "Program",
@@ -58,17 +58,30 @@
           "ingredient_cooking": "Ingredient cooking"
         }
       },
-      "progress": { "name": "Progress" },
-      "remaining_time": { "name": "Remaining time" },
-      "operation_start": { "name": "Cooking started" },
-      "end_time": { "name": "Estimated end" },
-      "target_temperature": { "name": "Target temperature" },
-      "recipe_title": { "name": "Recipe" },
-      "recipe_step": { "name": "Step" },
+      "progress": {
+        "name": "Progress"
+      },
+      "remaining_time": {
+        "name": "Remaining time"
+      },
+      "operation_start": {
+        "name": "Cooking started"
+      },
+      "end_time": {
+        "name": "Estimated end"
+      },
+      "target_temperature": {
+        "name": "Target temperature"
+      },
+      "recipe_title": {
+        "name": "Recipe"
+      },
+      "recipe_step": {
+        "name": "Step"
+      },
       "program": {
         "name": "Program",
         "state": {
-          "unknown": "Unknown",
           "none": "None",
           "cooking_low_pressure": "Low pressure cooking",
           "cooking_high_pressure": "Pressure cooking",
@@ -99,7 +112,9 @@
       }
     },
     "binary_sensor": {
-      "connected": { "name": "Connection" }
+      "connected": {
+        "name": "Connection"
+      }
     },
     "event": {
       "notification": {
@@ -112,6 +127,11 @@
           }
         }
       }
+    }
+  },
+  "exceptions": {
+    "connection_failed": {
+      "message": "Could not connect to the SEB cloud: {error}"
     }
   }
 }
