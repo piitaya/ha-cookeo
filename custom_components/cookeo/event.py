@@ -1,66 +1,54 @@
-"""Cookeo event entities."""
+"""Event platform for the Cookeo integration."""
 
-from __future__ import annotations
+from typing import override
 
-from homeassistant.components.event import EventEntity, EventEntityDescription
+from homeassistant.components.event import EventEntity
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from . import CookeoEntry
-from .coordinator import CookeoCoordinator
+from .coordinator import CookeoConfigEntry, CookeoCoordinator
 from .entity import CookeoEntity
-from .lib.notifications import NOTIFICATION_KEY_VALUES, code_to_key
+from .lib import EVENT_TYPES, notification_type
 
-NOTIFICATION_DESCRIPTION = EventEntityDescription(
-    key="notification",
-    translation_key="notification",
-    event_types=list(NOTIFICATION_KEY_VALUES),
-)
+PARALLEL_UPDATES = 0
 
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: CookeoEntry,
-    async_add_entities: AddEntitiesCallback,
+    entry: CookeoConfigEntry,
+    async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    coordinator = entry.runtime_data
-    async_add_entities([CookeoNotificationEvent(coordinator)])
+    """Set up the Cookeo event platform."""
+    async_add_entities([CookeoNotificationEvent(entry.runtime_data)])
 
 
 class CookeoNotificationEvent(CookeoEntity, EventEntity):
-    entity_description = NOTIFICATION_DESCRIPTION
+    """Event fired for each notification of a Cookeo."""
+
+    _attr_translation_key = "notification"
 
     def __init__(self, coordinator: CookeoCoordinator) -> None:
+        """Initialize the event, ignoring the notification already received."""
         super().__init__(coordinator, "notification")
-        self.entity_description = NOTIFICATION_DESCRIPTION
-        self._last_seen_version: int | None = None
-
-    async def async_added_to_hass(self) -> None:
-        await super().async_added_to_hass()
-        # Snapshot the current version so we only fire on future
-        # notifications, not on a stale one from before HA was listening.
-        self._last_seen_version = self.coordinator.data.status.version
+        self._attr_event_types = list(EVENT_TYPES)
+        self._version = coordinator.data.status.version
 
     @callback
+    @override
     def _handle_coordinator_update(self) -> None:
-        super()._handle_coordinator_update()
+        """Fire the event when a new notification arrives."""
         status = self.coordinator.data.status
-        notif = status.notification
-        if notif is None:
-            return
-        if status.version == self._last_seen_version:
-            return
-        self._last_seen_version = status.version
-
-        self._trigger_event(
-            code_to_key(notif.code),
-            {
-                "code": notif.code,
-                "severity": notif.severity,
-                "time_to_live": notif.time_to_live,
-                "title": notif.title,
-                "description": notif.description,
-                "title_key": notif.title_key,
-            },
-        )
-        self.async_write_ha_state()
+        if (notification := status.notification) and status.version != self._version:
+            self._version = status.version
+            self._trigger_event(
+                notification_type(notification.code),
+                {
+                    "code": notification.code,
+                    "severity": notification.severity,
+                    "time_to_live": notification.time_to_live,
+                    "title": notification.title,
+                    "description": notification.description,
+                    "title_key": notification.title_key,
+                },
+            )
+        super()._handle_coordinator_update()

@@ -1,16 +1,6 @@
-# Cookeo, Home Assistant integration
+# Cookeo for Home Assistant
 
-Home Assistant integration for the **Moulinex Cookeo Touch WiFi** over
-SEB's cloud API. No broker to run, no Bluetooth pairing.
-
-## Status
-
-Read-only. Tested against a Cookeo Touch WiFi (model `APPLIANCE_1090`,
-firmware 5.0.54). Other cloud-connected Cookeo models share the same
-backend (`PRO_COO` domain) and should work out of the box, but are
-untested.
-
-The non-cloud Cookeo Connect (Bluetooth-only) is not supported.
+Home Assistant integration for the Moulinex Cookeo multicookers connected to Wi-Fi. It goes through the same cloud as the Moulinex app, so the Cookeo must already be set up in that app.
 
 ## Supported appliances
 
@@ -20,40 +10,32 @@ The non-cloud Cookeo Connect (Bluetooth-only) is not supported.
 | Cookeo Touch Pro WiFi | |
 | Cookeo Touch Mini WiFi | |
 
-Other SEB cloud robots (Companion, OptiGrill, CakeFactory, …) use the
-same authentication stack but have different `cookingStatus` payloads
-and are out of scope for this repo.
+Only the Cookeo Touch WiFi (firmware 5.0.54) has been tested. The other Wi-Fi models use the same cloud and should work. The Bluetooth-only Cookeo Connect is not supported, and neither are other SEB appliances such as the Companion or the OptiGrill.
 
 ## Entities
 
-Per Cookeo:
+Each Cookeo gets a device with these entities:
 
-| Entity | Type | Description |
-| --- | --- | --- |
-| State | sensor (enum) | Cooking phase (`ready`, `warming`, `cooking`, `keep_warm`, `done`, …) |
-| Mode | sensor (enum) | `manual`, `program`, `recipe`, `ingredient_cooking` |
-| Program | sensor (enum) | Localised program name (pressure cooking, simmer, steam, …) |
-| Progress | sensor (%) | Live percentage during warming / depressurisation |
-| Remaining time | sensor (duration) | Cloud-computed countdown |
-| Cooking started | sensor (timestamp) | When the current operation began |
-| Estimated end | sensor (timestamp) | `started + duration` target |
-| Target temperature | sensor (°C) | When a program defines an explicit temperature |
-| Recipe | sensor (text) | Recipe title (when running a recipe) |
-| Step | sensor (text) | Current step index inside the recipe |
-| Notification | event | Fires on each appliance notification with localised title + description |
+| Entity | Description |
+| --- | --- |
+| State | Cooking phase: ready, preheating, cooking, keep warm, done… |
+| Mode | Manual, program, recipe or ingredient cooking |
+| Program | Program in use, such as pressure cooking or simmer |
+| Progress | Percentage while preheating or releasing pressure |
+| Remaining time | Time left in the program |
+| Cooking started | When the program started |
+| Estimated end | When the program should end |
+| Target temperature | Temperature set by the program, when it has one |
+| Recipe | Title of the recipe in progress |
+| Step | Current step of the recipe |
+| Notification | Event fired for each notification of the Cookeo, with its title and description |
+| Connection | Whether the Cookeo is connected to the cloud (diagnostic) |
 
-Diagnostic:
+The firmware version is shown on the device page.
 
-| Entity | Type | Description |
-| --- | --- | --- |
-| Connection | binary sensor | Cloud connectivity (online / offline) |
+## Installation
 
-Firmware version is exposed as the device's `sw_version` on the device
-page, not as a separate entity.
-
-## Install
-
-Recommended via HACS:
+With HACS:
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=piitaya&repository=ha-cookeo&category=integration)
 
@@ -61,35 +43,23 @@ Then restart Home Assistant and add the integration:
 
 [![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=cookeo)
 
-Or manually: copy `custom_components/cookeo/` into your HA
-`custom_components/`, restart, then **Settings → Devices & Services →
-Add Integration → "Cookeo"**.
+To install it manually, copy `custom_components/cookeo/` into the `custom_components` folder of your Home Assistant configuration, restart, then go to **Settings → Devices & services → Add integration** and search for Cookeo.
 
-Follow the on-screen instructions (see "Authentication" below).
+## Setup
 
-## Authentication
+Pick the region of your Moulinex account, then enter the email and password you use in the Moulinex app. Home Assistant logs in once and keeps only a login token, which it renews on its own. The password is not stored.
 
-Setup asks for the brand / market of your Moulinex account, then the email and password you use in the Moulinex or Cookeo app. Home Assistant logs in once with them and keeps only the resulting refresh token, which it rotates automatically. The password is not stored.
+When the account has several Cookeo, setup asks which one to add. Run it again to add the others.
 
-If the refresh token gets revoked (password change, logged out everywhere), remove the integration and add it again.
+If the token stops working, after a password change for example, remove the integration and add it again.
 
 ## Limitations
 
-- **Read-only.** The cloud API has no remote-control endpoints for the
-  Cookeo line — every command path observed in the official mobile app
-  is empty / no-op. Pressing buttons on the appliance is the only way
-  to start, pause, or stop a program.
-- **No initial state on power-on.** The Cookeo only publishes
-  `cookingStatus` on phase transitions. If Home Assistant connects
-  while the appliance is sitting idle, the live entities stay in
-  "Inconnu" until you interact with the device.
+The integration is read-only. The cloud offers no way to control the Cookeo, so programs can only be started or stopped on the appliance itself.
 
 ## Development
 
-A standalone debug script lives at `scripts/debug.py`. It uses the same
-library code as the integration, drives it against your real account,
-and prints a live Rich-powered TUI with state, shadow, and a diff log
-of every field change. Read-only, no HA needed.
+`scripts/debug.py` connects to your account without Home Assistant and shows the live state of the Cookeo in the terminal, with a log of every value that changes. Like the Moulinex app, the only thing it sends is a request for the current state.
 
 ```bash
 uv venv
@@ -97,14 +67,12 @@ uv pip install -r requirements_dev.txt
 .venv/bin/python scripts/debug.py
 ```
 
-On first run it logs in with `COOKEO_EMAIL` and `COOKEO_PASSWORD` from `.env` (or asks for them), then writes the refresh token to `.env` for the next runs.
+It logs in with `COOKEO_EMAIL` and `COOKEO_PASSWORD` from a `.env` file at the root of the repo, or asks for them, then saves the login token in `.env` for the next runs.
 
 ## License
 
-[MIT](LICENSE).
+[MIT](LICENSE)
 
 ## Disclaimer
 
-Unofficial integration, not affiliated with Moulinex, Tefal, or Groupe
-SEB. The cloud API surface is undocumented and may change without
-notice. Use at your own risk.
+This integration is not affiliated with Moulinex, Tefal or Groupe SEB. It relies on an undocumented cloud API that can change at any time.

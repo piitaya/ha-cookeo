@@ -1,13 +1,16 @@
 """Constants for the Cookeo integration."""
 
-from __future__ import annotations
+import logging
 
-from typing import Final
+DOMAIN = "cookeo"
 
-DOMAIN: Final = "cookeo"
+LOGGER = logging.getLogger(__package__)
 
-CONF_TOKENS: Final = "tokens"
-CONF_PROFILE_PERIMETER: Final = "profile_perimeter"
-CONF_APPLIANCE: Final = "appliance"
+MANUFACTURER = "Moulinex"
 
-AWS_CREDS_REFRESH_LEEWAY_S: Final = 300
+CONF_APPLIANCE = "appliance"
+CONF_PROFILE_PERIMETER = "profile_perimeter"
+CONF_REGION = "region"
+CONF_TOKENS = "tokens"
+
+CREDENTIALS_RENEWAL_MARGIN = 300
