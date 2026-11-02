@@ -13,7 +13,7 @@
     },
     "abort": {
       "already_configured": "This account is already configured.",
-      "no_appliances": "No Wi-Fi Cookeo or Companion is linked to this account."
+      "no_appliances": "No compatible appliance is linked to this account."
     },
     "error": {
       "invalid_auth": "Invalid email or password.",
