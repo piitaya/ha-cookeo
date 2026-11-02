@@ -94,11 +94,6 @@ class Appliance:
         return f"{self.thing_type}/{self.thing_uuid}/getCookingStatus"
 
     @property
-    def alert_topic(self) -> str:
-        """Return the MQTT topic of the alerts."""
-        return f"{self.thing_type}/{self.thing_uuid}/alert"
-
-    @property
     def shadow_topic(self) -> str:
         """Return the MQTT topic prefix of the AWS IoT shadow."""
         return f"$aws/things/{self.thing_name}/shadow"

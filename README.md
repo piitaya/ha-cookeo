@@ -15,7 +15,7 @@ Only the Cookeo Touch WiFi and WiFi Pro have been tested. The other Wi-Fi models
 
 ## Entities
 
-Each Cookeo gets a device with these entities:
+Each appliance gets a device with these entities:
 
 | Entity | Description |
 | --- | --- |
@@ -29,7 +29,7 @@ Each Cookeo gets a device with these entities:
 | Target temperature | Temperature set by the program, when it has one |
 | Recipe | Title of the recipe in progress |
 | Step | Current step of the recipe |
-| Connection | Whether the Cookeo is connected to the cloud (diagnostic) |
+| Connection | Whether the appliance is connected to the cloud (diagnostic) |
 
 The firmware version is shown on the device page.
 
@@ -49,17 +49,17 @@ To install it manually, copy `custom_components/cookeo/` into the `custom_compon
 
 Pick the region of your Moulinex account, then enter the email and password you use in the Moulinex app. Home Assistant logs in once and keeps only a login token, which it renews on its own. The password is not stored.
 
-When the account has several Cookeo, setup asks which one to add. Run it again to add the others.
+When the account has several appliances, setup asks which one to add. Run it again to add the others.
 
 If the token stops working, after a password change for example, remove the integration and add it again.
 
 ## Limitations
 
-The integration is read-only. The cloud offers no way to control the Cookeo, so programs can only be started or stopped on the appliance itself.
+The integration is read-only. The cloud offers no way to control the appliance, so programs can only be started or stopped on the appliance itself.
 
 ## Development
 
-`scripts/debug.py` connects to your account without Home Assistant and shows the live state of the Cookeo in the terminal, with a log of every value that changes. Like the Moulinex app, the only thing it sends is a request for the current state.
+`scripts/debug.py` connects to your account without Home Assistant and shows the live state of the appliance in the terminal, with a log of every value that changes. Like the Moulinex app, the only thing it sends is a request for the current state.
 
 ```bash
 uv venv
