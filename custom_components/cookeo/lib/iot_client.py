@@ -24,13 +24,11 @@ class IotClient:
         appliance: Appliance,
         on_status: Callable[[CookeoStatus], None],
         on_shadow: Callable[[CookeoShadow], None],
-        on_alert: Callable[[dict[str, Any]], None] | None = None,
     ) -> None:
         """Initialize the client, callbacks run on the MQTT thread."""
         self._appliance = appliance
         self._on_status = on_status
         self._on_shadow = on_shadow
-        self._on_alert = on_alert
         # AWS IoT needs a distinct client id for each connection of an identity.
         self._client_id = f"mqtt-{appliance.thing_name}-{os.urandom(2).hex()}"
         self._connection: mqtt.Connection | None = None
@@ -57,9 +55,8 @@ class IotClient:
             f"{shadow}/update/accepted": self._handle_shadow,
             f"{shadow}/update/documents": self._handle_shadow,
             self._appliance.cooking_status_topic: self._handle_status,
+            self._appliance.alert_topic: self._handle_status,
         }
-        if self._on_alert is not None:
-            handlers[self._appliance.alert_topic] = self._handle_alert
         try:
             self._connection.connect().result(timeout=15)
             for topic, handler in handlers.items():
@@ -98,17 +95,13 @@ class IotClient:
         self.disconnect()
         self.connect(credentials)
 
-    def _handle_status(self, payload: bytes, **kwargs: Any) -> None:
-        if (data := _decode(payload)) is not None:
+    def _handle_status(self, topic: str, payload: bytes, **kwargs: Any) -> None:
+        if (data := _decode(topic, payload)) is not None:
             self._on_status(CookeoStatus.from_json(data))
 
-    def _handle_shadow(self, payload: bytes, **kwargs: Any) -> None:
-        if (data := _decode(payload)) is not None:
+    def _handle_shadow(self, topic: str, payload: bytes, **kwargs: Any) -> None:
+        if (data := _decode(topic, payload)) is not None:
             self._on_shadow(CookeoShadow.from_json(data))
-
-    def _handle_alert(self, payload: bytes, **kwargs: Any) -> None:
-        if self._on_alert is not None and (data := _decode(payload)) is not None:
-            self._on_alert(data)
 
     def _on_interrupted(self, error: Exception, **kwargs: Any) -> None:
         _LOGGER.info("MQTT connection interrupted: %s", error)
@@ -117,11 +110,12 @@ class IotClient:
         _LOGGER.info("MQTT connection resumed: %s", return_code)
 
 
-def _decode(payload: bytes) -> dict[str, Any] | None:
+def _decode(topic: str, payload: bytes) -> dict[str, Any] | None:
     """Decode a JSON MQTT payload."""
     try:
         data = json.loads(payload)
     except ValueError:
         _LOGGER.warning("Ignoring undecodable MQTT payload: %r", payload[:80])
         return None
+    _LOGGER.debug("Received on %s: %s", topic, data)
     return data if isinstance(data, dict) else None

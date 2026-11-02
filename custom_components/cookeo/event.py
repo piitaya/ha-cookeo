@@ -8,7 +8,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .coordinator import CookeoConfigEntry, CookeoCoordinator
 from .entity import CookeoEntity
-from .lib import EVENT_TYPES, notification_type
+from .lib import EVENT_TYPES, CookeoNotification, notification_type
 
 PARALLEL_UPDATES = 0
 
@@ -28,18 +28,20 @@ class CookeoNotificationEvent(CookeoEntity, EventEntity):
     _attr_translation_key = "notification"
 
     def __init__(self, coordinator: CookeoCoordinator) -> None:
-        """Initialize the event, ignoring the notification already received."""
+        """Initialize the event."""
         super().__init__(coordinator, "notification")
         self._attr_event_types = list(EVENT_TYPES)
-        self._version = coordinator.data.status.version
+        self._last: tuple[CookeoNotification, int | None] | None = None
 
     @callback
     @override
     def _handle_coordinator_update(self) -> None:
         """Fire the event when a new notification arrives."""
-        status = self.coordinator.data.status
-        if (notification := status.notification) and status.version != self._version:
-            self._version = status.version
+        data = self.coordinator.data
+        if (notification := data.notification) and (
+            last := (notification, data.status.version)
+        ) != self._last:
+            self._last = last
             self._trigger_event(
                 notification_type(notification.code),
                 {

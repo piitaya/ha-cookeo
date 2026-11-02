@@ -22,6 +22,7 @@ from .const import (
 from .lib import (
     COOKEO_DOMAIN,
     Appliance,
+    CookeoNotification,
     CookeoShadow,
     CookeoStatus,
     IotClient,
@@ -40,6 +41,7 @@ class CookeoData:
 
     status: CookeoStatus = field(default_factory=CookeoStatus)
     shadow: CookeoShadow = field(default_factory=CookeoShadow)
+    notification: CookeoNotification | None = None
 
 
 class CookeoCoordinator(DataUpdateCoordinator[CookeoData]):
@@ -128,6 +130,7 @@ class CookeoCoordinator(DataUpdateCoordinator[CookeoData]):
     def _async_on_status(self, status: CookeoStatus) -> None:
         """Handle a cooking status update."""
         self.data.status = self.data.status.merge(status)
+        self.data.notification = status.notification
         self.async_set_updated_data(self.data)
 
     @callback
@@ -135,6 +138,7 @@ class CookeoCoordinator(DataUpdateCoordinator[CookeoData]):
         """Handle a shadow update."""
         previous = self.data.shadow
         self.data.shadow = previous.merge(shadow)
+        self.data.notification = None
         if previous.connected is False and self.data.shadow.connected:
             self._client.request_status()
         if self.data.shadow.firmware.ui_version != previous.firmware.ui_version:

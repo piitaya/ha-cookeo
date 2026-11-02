@@ -213,7 +213,6 @@ async def main() -> None:
         appliance,
         on_status=on_status,
         on_shadow=on_shadow,
-        on_alert=lambda alert: log(f"alert {alert!r}"),
     )
     await loop.run_in_executor(None, client.connect, credentials)
     try:
