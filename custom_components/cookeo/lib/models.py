@@ -105,18 +105,6 @@ class Appliance:
 
 
 @dataclass(slots=True)
-class CookeoNotification:
-    """Notification sent along a cooking status."""
-
-    code: str
-    severity: str
-    time_to_live: int | None = None
-    title: str | None = None
-    description: str | None = None
-    title_key: str | None = None
-
-
-@dataclass(slots=True)
 class CookeoStatus:
     """Cooking status, filled in by partial MQTT updates."""
 
@@ -126,7 +114,6 @@ class CookeoStatus:
     elapsed_time: int | None = None
     remaining_time: int | None = None
     program_key: str | None = None
-    notification: CookeoNotification | None = None
     alert_description: str | None = None
     error: str | None = None
     recipe_id: str | None = None
@@ -139,7 +126,7 @@ class CookeoStatus:
 
     def merge(self, update: Self) -> Self:
         """Return this status updated with the fields set in ``update``."""
-        return replace(_merge(self, update), notification=update.notification)
+        return _merge(self, update)
 
     @property
     def normalized_status(self) -> str | None:
@@ -245,7 +232,6 @@ class CookeoStatus:
         operation = payload.get("currentOperation") or {}
         program = operation.get("program")
         parameters = operation.get("parameters")
-        notification = payload.get("notification")
         recipe = payload.get("currentRecipe")
         step = payload.get("currentStep")
         return cls(
@@ -255,18 +241,6 @@ class CookeoStatus:
             elapsed_time=payload.get("elapsedTime"),
             remaining_time=payload.get("remainingTime"),
             program_key=program.get("key") if isinstance(program, dict) else None,
-            notification=(
-                CookeoNotification(
-                    code=str(notification.get("code", "")),
-                    severity=str(notification.get("severity", "")),
-                    time_to_live=notification.get("timeToLive"),
-                    title=notification.get("title"),
-                    description=notification.get("description"),
-                    title_key=notification.get("titleKey"),
-                )
-                if isinstance(notification, dict)
-                else None
-            ),
             alert_description=payload.get("alertDescr"),
             error=payload.get("error"),
             recipe_id=recipe.get("functionalId") if isinstance(recipe, dict) else None,

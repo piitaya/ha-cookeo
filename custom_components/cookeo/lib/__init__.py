@@ -9,17 +9,14 @@ from .models import (
     Appliance,
     AwsCredentials,
     CookeoFirmware,
-    CookeoNotification,
     CookeoShadow,
     CookeoStatus,
     Tokens,
 )
-from .notifications import EVENT_TYPES, notification_type
 from .programs import PROGRAMS
 
 __all__ = [
     "COOKEO_DOMAIN",
-    "EVENT_TYPES",
     "MODES",
     "PROGRAMS",
     "STATUSES",
@@ -27,11 +24,9 @@ __all__ = [
     "AwsCredentials",
     "CookeoError",
     "CookeoFirmware",
-    "CookeoNotification",
     "CookeoShadow",
     "CookeoStatus",
     "IotClient",
     "LoginError",
     "Tokens",
-    "notification_type",
 ]

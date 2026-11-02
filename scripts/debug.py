@@ -101,7 +101,6 @@ def _status_fields(status: CookeoStatus) -> dict[str, Any]:
         "version": status.version,
         "alert_description": status.alert_description,
         "error": status.error,
-        "notification_code": status.notification.code if status.notification else None,
     }
 
 

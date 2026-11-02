@@ -134,18 +134,6 @@
       "connected": {
         "name": "Connexion"
       }
-    },
-    "event": {
-      "notification": {
-        "name": "Notification",
-        "state_attributes": {
-          "event_type": {
-            "state": {
-              "unknown": "Code inconnu"
-            }
-          }
-        }
-      }
     }
   },
   "exceptions": {

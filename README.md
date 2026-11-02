@@ -29,7 +29,6 @@ Each Cookeo gets a device with these entities:
 | Target temperature | Temperature set by the program, when it has one |
 | Recipe | Title of the recipe in progress |
 | Step | Current step of the recipe |
-| Notification | Event fired for each notification of the Cookeo, with its title and description |
 | Connection | Whether the Cookeo is connected to the cloud (diagnostic) |
 
 The firmware version is shown on the device page.
