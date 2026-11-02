@@ -107,7 +107,26 @@
           "keep_warm": "Maintien au chaud",
           "keep_warm_iot": "Maintien au chaud",
           "keep_warm_mini": "Maintien au chaud (Mini)",
-          "reheat": "Réchauffage"
+          "reheat": "Réchauffage",
+          "manual": "Manuel",
+          "sauce": "Sauce",
+          "steam_p3": "Vapeur P3",
+          "steam_p4": "Vapeur P4",
+          "steam_p5": "Vapeur P5",
+          "dessert": "Dessert",
+          "timer": "Minuteur",
+          "auto_clean": "Rinçage",
+          "soup_smooth": "Velouté",
+          "soup_chunky": "Mouliné",
+          "browned_dish": "Rissolé",
+          "braised_vegetables": "Étuvée de légumes",
+          "stew": "Mijoté",
+          "risotto": "Risotto",
+          "steam_gentle": "Vapeur douce",
+          "steam_intense": "Vapeur intense",
+          "bread": "Pain",
+          "brioche": "Brioche",
+          "cake": "Cake"
         }
       }
     },

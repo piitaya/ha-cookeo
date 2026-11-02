@@ -107,7 +107,26 @@
           "keep_warm": "Keep warm",
           "keep_warm_iot": "Keep warm",
           "keep_warm_mini": "Keep warm (Mini)",
-          "reheat": "Reheating"
+          "reheat": "Reheating",
+          "manual": "Manual",
+          "sauce": "Sauce",
+          "steam_p3": "Steam P3",
+          "steam_p4": "Steam P4",
+          "steam_p5": "Steam P5",
+          "dessert": "Dessert",
+          "timer": "Timer",
+          "auto_clean": "Rinse",
+          "soup_smooth": "Smooth soup",
+          "soup_chunky": "Chunky soup",
+          "browned_dish": "Browned dish",
+          "braised_vegetables": "Braised vegetables",
+          "stew": "Stew",
+          "risotto": "Risotto",
+          "steam_gentle": "Gentle steam",
+          "steam_intense": "High steam",
+          "bread": "Bread",
+          "brioche": "Brioche",
+          "cake": "Cake"
         }
       }
     },

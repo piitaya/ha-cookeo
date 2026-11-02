@@ -3,6 +3,7 @@
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
+from functools import partial
 from typing import override
 
 from homeassistant.components.sensor import (
@@ -32,11 +33,11 @@ def _option(value: str | None, options: tuple[str, ...]) -> str | None:
     return value if value in options else None
 
 
-def _program(status: CookeoStatus) -> str | None:
+def _program(programs: dict[str, str], status: CookeoStatus) -> str | None:
     """Return the program, ``none`` when no program is loaded."""
     if (key := status.display_program_key) is None:
         return NO_PROGRAM
-    return PROGRAMS.get(key)
+    return programs.get(key)
 
 
 def _local_time(value: datetime | None) -> datetime | None:
@@ -117,15 +118,19 @@ SENSORS: tuple[CookeoSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda status: status.display_target_temperature,
     ),
-    CookeoSensorEntityDescription(
+)
+
+
+def _program_description(programs: dict[str, str]) -> CookeoSensorEntityDescription:
+    """Return the description of the program sensor of an appliance."""
+    return CookeoSensorEntityDescription(
         key="program",
         translation_key="program",
         device_class=SensorDeviceClass.ENUM,
-        options=[*sorted(set(PROGRAMS.values())), NO_PROGRAM],
-        value_fn=_program,
+        options=[*sorted(set(programs.values())), NO_PROGRAM],
+        value_fn=partial(_program, programs),
         off_value=NO_PROGRAM,
-    ),
-)
+    )
 
 
 async def async_setup_entry(
@@ -135,8 +140,10 @@ async def async_setup_entry(
 ) -> None:
     """Set up the Cookeo sensor platform."""
     coordinator = entry.runtime_data
+    programs = PROGRAMS[coordinator.appliance.domain]
     async_add_entities(
-        CookeoSensor(coordinator, description) for description in SENSORS
+        CookeoSensor(coordinator, description)
+        for description in (*SENSORS, _program_description(programs))
     )
 
 

@@ -20,6 +20,7 @@ from .const import (
     LOGGER,
 )
 from .lib import (
+    COOKEO_DOMAIN,
     Appliance,
     CookeoShadow,
     CookeoStatus,
@@ -55,6 +56,7 @@ class CookeoCoordinator(DataUpdateCoordinator[CookeoData]):
             thing_type=appliance["thing_type"],
             thing_uuid=appliance["thing_uuid"],
             cmmf=appliance.get("cmmf"),
+            domain=appliance.get("domain", COOKEO_DOMAIN),
         )
         tokens = entry.data[CONF_TOKENS]
         self._tokens = Tokens(

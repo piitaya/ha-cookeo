@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 import re
 from typing import Any, Self
 
+from .const import COOKEO_DOMAIN
+
 STATUSES = (
     "stopped",
     "ready",
@@ -74,6 +76,7 @@ class Appliance:
     thing_type: str
     thing_uuid: str
     cmmf: str | None = None
+    domain: str = COOKEO_DOMAIN
 
     @property
     def thing_name(self) -> str:
