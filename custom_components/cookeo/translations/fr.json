@@ -126,7 +126,25 @@
           "steam_intense": "Vapeur intense",
           "bread": "Pain",
           "brioche": "Brioche",
-          "cake": "Cake"
+          "cake": "Cake",
+          "slow_cooking_low": "Cuisson basse température douce",
+          "slow_cooking_medium": "Cuisson basse température moyenne",
+          "slow_cooking_high": "Cuisson basse température forte",
+          "sous_vide_eco": "Sous-vide éco",
+          "sous_vide_immersed": "Sous-vide immergé",
+          "yogurt": "Yaourt",
+          "bread_cooking": "Pain/Brioche",
+          "dough_rising": "Levée de pâte",
+          "dehydration": "Déshydratation",
+          "steam_oven": "Four vapeur",
+          "roast": "Rôtir/Four",
+          "grill": "Gratiner",
+          "fry": "Frire",
+          "manual_oven": "Four manuel",
+          "air_fryer": "Air fryer manuel",
+          "steam_crisp": "Steam & Crisp",
+          "actifry": "Actifry",
+          "jam": "Confiture"
         }
       }
     },

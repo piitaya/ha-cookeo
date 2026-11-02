@@ -126,7 +126,25 @@
           "steam_intense": "High steam",
           "bread": "Bread",
           "brioche": "Brioche",
-          "cake": "Cake"
+          "cake": "Cake",
+          "slow_cooking_low": "Gentle low-temperature cooking",
+          "slow_cooking_medium": "Medium low-temperature cooking",
+          "slow_cooking_high": "High low-temperature cooking",
+          "sous_vide_eco": "Eco sous-vide",
+          "sous_vide_immersed": "Immersed sous-vide",
+          "yogurt": "Yogurt",
+          "bread_cooking": "Bread/Brioche",
+          "dough_rising": "Dough rise",
+          "dehydration": "Dehydration",
+          "steam_oven": "Steam oven",
+          "roast": "Roast/Bake",
+          "grill": "Grill",
+          "fry": "Fry",
+          "manual_oven": "Manual oven",
+          "air_fryer": "Manual air fryer",
+          "steam_crisp": "Steam & Crisp",
+          "actifry": "Actifry",
+          "jam": "Jam"
         }
       }
     },
