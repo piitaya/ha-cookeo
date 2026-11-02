@@ -9,18 +9,11 @@
           "email": "Email",
           "password": "Password"
         }
-      },
-      "pick": {
-        "title": "Pick a Cookeo",
-        "description": "Several Cookeo appliances are linked to this account. Pick the one to add now, you can add the others later by repeating this setup.",
-        "data": {
-          "appliance": "Appliance"
-        }
       }
     },
     "abort": {
-      "already_configured": "This Cookeo is already configured.",
-      "no_appliances": "No Cookeo appliances are linked to this account."
+      "already_configured": "This account is already configured.",
+      "no_appliances": "No compatible appliance is linked to this account."
     },
     "error": {
       "invalid_auth": "Invalid email or password.",

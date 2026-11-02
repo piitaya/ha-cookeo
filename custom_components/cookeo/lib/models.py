@@ -1,7 +1,9 @@
 """Data models for the Cookeo library."""
 
+import base64
 from dataclasses import dataclass, field, fields, replace
 from datetime import datetime, timedelta
+import json
 import re
 from typing import Any, Self
 
@@ -56,6 +58,15 @@ class Tokens:
     access_token: str
     id_token: str
     refresh_token: str
+
+    @property
+    def user_id(self) -> str:
+        """Return the id of the SEB account, read from the id token."""
+        payload = self.id_token.split(".")[1]
+        claims = json.loads(
+            base64.urlsafe_b64decode(payload + "=" * (-len(payload) % 4))
+        )
+        return claims["sub"].rsplit("/", 1)[-1]
 
 
 @dataclass(slots=True)
