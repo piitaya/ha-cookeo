@@ -13,9 +13,6 @@
     },
     "binary_sensor": {
       "connected": { "default": "mdi:cloud" }
-    },
-    "event": {
-      "notification": { "default": "mdi:bell-ring-outline" }
     }
   }
 }

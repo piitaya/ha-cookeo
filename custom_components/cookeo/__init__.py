@@ -12,7 +12,6 @@ from .lib import CookeoError
 
 PLATFORMS: list[Platform] = [
     Platform.BINARY_SENSOR,
-    Platform.EVENT,
     Platform.SENSOR,
 ]
 
