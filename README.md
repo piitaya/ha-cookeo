@@ -53,7 +53,7 @@ To install it manually, copy `custom_components/cookeo/` into the `custom_compon
 
 Pick the region of your Moulinex account, then enter the email and password you use in the Moulinex app. Home Assistant logs in once and keeps only a login token, which it renews on its own. The password is not stored.
 
-When the account has several appliances, setup asks which one to add. Run it again to add the others.
+All the Wi-Fi appliances of the account are added. Appliances linked to the account later show up on their own within an hour, and the ones removed from the account disappear.
 
 If the token stops working, after a password change for example, remove the integration and add it again.
 

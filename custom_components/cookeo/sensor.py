@@ -19,7 +19,7 @@ from homeassistant.helpers.typing import StateType
 from homeassistant.util import dt as dt_util
 
 from .coordinator import CookeoConfigEntry, CookeoCoordinator
-from .entity import CookeoEntity
+from .entity import CookeoEntity, async_add_device_entities
 from .lib import MODES, PROGRAMS, STATUSES, CookeoStatus
 
 PARALLEL_UPDATES = 0
@@ -139,11 +139,16 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up the Cookeo sensor platform."""
-    coordinator = entry.runtime_data
-    programs = PROGRAMS[coordinator.appliance.domain]
-    async_add_entities(
-        CookeoSensor(coordinator, description)
-        for description in (*SENSORS, _program_description(programs))
+    async_add_device_entities(
+        entry,
+        async_add_entities,
+        lambda coordinator: (
+            CookeoSensor(coordinator, description)
+            for description in (
+                *SENSORS,
+                _program_description(PROGRAMS[coordinator.appliance.domain]),
+            )
+        ),
     )
 
 

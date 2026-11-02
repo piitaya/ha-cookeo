@@ -16,14 +16,13 @@ from homeassistant.helpers.selector import (
 )
 
 from .const import (
-    CONF_APPLIANCE,
     CONF_PROFILE_PERIMETER,
     CONF_REGION,
     CONF_TOKENS,
     DOMAIN,
     LOGGER,
 )
-from .lib import Appliance, CookeoError, LoginError, Tokens, oauth, seb_api
+from .lib import CookeoError, LoginError, oauth, seb_api
 
 
 class Region(NamedTuple):
@@ -64,11 +63,7 @@ STEP_USER_SCHEMA = vol.Schema(
 class CookeoConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Cookeo."""
 
-    VERSION = 1
-
-    _tokens: Tokens
-    _profile_perimeter: str
-    _appliances: dict[str, Appliance]
+    VERSION = 2
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -98,19 +93,19 @@ class CookeoConfigFlow(ConfigFlow, domain=DOMAIN):
                 LOGGER.exception("Unexpected exception")
                 errors["base"] = "unknown"
             else:
-                self._tokens = tokens
-                self._profile_perimeter = profile.get("profilePerimeter", perimeter)
-                self._appliances = {
-                    appliance.thing_uuid: appliance
-                    for appliance in seb_api.appliances_from_profile(profile)
-                }
-                if not self._appliances:
+                if not seb_api.appliances_from_profile(profile):
                     return self.async_abort(reason="no_appliances")
-                if len(self._appliances) == 1:
-                    return await self._async_create_entry(
-                        next(iter(self._appliances.values()))
-                    )
-                return await self.async_step_pick()
+                await self.async_set_unique_id(tokens.user_id)
+                self._abort_if_unique_id_configured()
+                return self.async_create_entry(
+                    title=user_input[CONF_EMAIL],
+                    data={
+                        CONF_TOKENS: asdict(tokens),
+                        CONF_PROFILE_PERIMETER: profile.get(
+                            "profilePerimeter", perimeter
+                        ),
+                    },
+                )
 
         return self.async_show_form(
             step_id="user",
@@ -119,39 +114,4 @@ class CookeoConfigFlow(ConfigFlow, domain=DOMAIN):
                 {k: v for k, v in (user_input or {}).items() if k != CONF_PASSWORD},
             ),
             errors=errors,
-        )
-
-    async def async_step_pick(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
-        """Pick the Cookeo to add when the account has several."""
-        if user_input is not None:
-            return await self._async_create_entry(
-                self._appliances[user_input[CONF_APPLIANCE]]
-            )
-        return self.async_show_form(
-            step_id="pick",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(CONF_APPLIANCE): vol.In(
-                        {
-                            uuid: f"{appliance.name} ({uuid[:8]})"
-                            for uuid, appliance in self._appliances.items()
-                        }
-                    )
-                }
-            ),
-        )
-
-    async def _async_create_entry(self, appliance: Appliance) -> ConfigFlowResult:
-        """Create the config entry of a Cookeo."""
-        await self.async_set_unique_id(appliance.thing_uuid)
-        self._abort_if_unique_id_configured()
-        return self.async_create_entry(
-            title=appliance.name,
-            data={
-                CONF_TOKENS: asdict(self._tokens),
-                CONF_PROFILE_PERIMETER: self._profile_perimeter,
-                CONF_APPLIANCE: asdict(appliance),
-            },
         )

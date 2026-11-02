@@ -194,26 +194,22 @@ async def main() -> None:
     def log(line: str) -> None:
         loop.call_soon_threadsafe(changes.append, f"[{datetime.now():%H:%M:%S}] {line}")
 
-    def on_status(update: CookeoStatus) -> None:
+    def on_status(_: Appliance, update: CookeoStatus) -> None:
         nonlocal status
         before = _status_fields(status)
         status = status.merge(update)
         for line in _diff(before, _status_fields(status)):
             log(line)
 
-    def on_shadow(update: CookeoShadow) -> None:
+    def on_shadow(_: Appliance, update: CookeoShadow) -> None:
         nonlocal shadow
         before = _shadow_fields(shadow)
         shadow = shadow.merge(update)
         for line in _diff(before, _shadow_fields(shadow)):
             log(f"shadow {line}")
 
-    client = IotClient(
-        appliance,
-        on_status=on_status,
-        on_shadow=on_shadow,
-    )
-    await loop.run_in_executor(None, client.connect, credentials)
+    client = IotClient(on_status=on_status, on_shadow=on_shadow)
+    await loop.run_in_executor(None, client.connect, credentials, [appliance])
     try:
         with Live(
             _render(appliance, status, shadow, changes),

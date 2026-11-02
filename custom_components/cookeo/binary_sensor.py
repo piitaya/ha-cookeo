@@ -14,7 +14,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .coordinator import CookeoConfigEntry, CookeoCoordinator
-from .entity import CookeoEntity
+from .entity import CookeoEntity, async_add_device_entities
 from .lib import CookeoShadow
 
 PARALLEL_UPDATES = 0
@@ -44,9 +44,13 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up the Cookeo binary sensor platform."""
-    coordinator = entry.runtime_data
-    async_add_entities(
-        CookeoBinarySensor(coordinator, description) for description in BINARY_SENSORS
+    async_add_device_entities(
+        entry,
+        async_add_entities,
+        lambda coordinator: (
+            CookeoBinarySensor(coordinator, description)
+            for description in BINARY_SENSORS
+        ),
     )
 
 

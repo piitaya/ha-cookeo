@@ -31,3 +31,6 @@ __pycache__/
 # Claude Code / Cursor local settings.
 .claude/
 .cursor/
+
+# Test environment.
+.venv-test/
