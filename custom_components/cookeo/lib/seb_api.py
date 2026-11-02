@@ -4,9 +4,10 @@ from typing import Any
 
 import aiohttp
 
-from .const import COOKEO_API_KEY, SEB_API_BASE, SEB_DOMAIN, SEB_IOT_BASE, USER_AGENT
+from .const import COOKEO_API_KEY, SEB_API_BASE, SEB_IOT_BASE, USER_AGENT
 from .exceptions import CookeoError
 from .models import Appliance
+from .programs import PROGRAMS
 
 _TIMEOUT = aiohttp.ClientTimeout(total=15)
 
@@ -31,16 +32,19 @@ async def fetch_profile(
 
 
 def appliances_from_profile(profile: dict[str, Any]) -> list[Appliance]:
-    """Return the Cookeo appliances of a profile."""
+    """Return the Cookeo and Companion appliances of a profile."""
     return [
         Appliance(
             name=product.get("name") or "Cookeo",
             thing_type=product["iot"]["thingType"],
             thing_uuid=product["iot"]["functionalId"],
             cmmf=str(product["cmmf"]) if product.get("cmmf") is not None else None,
+            domain=domain,
         )
         for product in (profile.get("household") or {}).get("products") or []
-        if SEB_DOMAIN in (product.get("domains") or []) and product.get("iot")
+        if product.get("iot")
+        for domain in product.get("domains") or []
+        if domain in PROGRAMS
     ]
 
 

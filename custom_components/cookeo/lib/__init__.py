@@ -1,5 +1,6 @@
 """Client for the SEB cloud of the Cookeo, without Home Assistant dependencies."""
 
+from .const import COOKEO_DOMAIN
 from .exceptions import CookeoError, LoginError
 from .iot_client import IotClient
 from .models import (
@@ -17,6 +18,7 @@ from .notifications import EVENT_TYPES, notification_type
 from .programs import PROGRAMS
 
 __all__ = [
+    "COOKEO_DOMAIN",
     "EVENT_TYPES",
     "MODES",
     "PROGRAMS",
