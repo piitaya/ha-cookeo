@@ -1,6 +1,6 @@
 # Cookeo for Home Assistant
 
-Home Assistant integration for the Moulinex Cookeo multicookers connected to Wi-Fi. It goes through the same cloud as the Moulinex app, so the Cookeo must already be set up in that app.
+Home Assistant integration for the Moulinex Cookeo multicookers and Companion cooking robots connected to Wi-Fi. It goes through the same cloud as the Moulinex app, so the appliance must already be set up in that app.
 
 ## Supported appliances
 
@@ -9,8 +9,9 @@ Home Assistant integration for the Moulinex Cookeo multicookers connected to Wi-
 | Cookeo Touch WiFi | ✓ |
 | Cookeo Touch Pro WiFi | ✓ |
 | Cookeo Touch Mini WiFi | |
+| i-Companion Touch XL | |
 
-Only the Cookeo Touch WiFi and WiFi Pro have been tested. The other Wi-Fi models use the same cloud and should work. The Bluetooth-only Cookeo Connect is not supported, and neither are other SEB appliances such as the Companion or the OptiGrill.
+Only the Cookeo Touch WiFi and WiFi Pro have been tested. The other Wi-Fi models, including the Companion, use the same cloud and should work. Bluetooth-only models such as the Cookeo Connect are not supported, and neither are other SEB appliances such as the OptiGrill.
 
 ## Entities
 
