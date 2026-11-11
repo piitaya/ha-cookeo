@@ -42,6 +42,7 @@ REGIONS: dict[str, Region] = {
     "TEFAL_DE": Region("tefal", "DE", "de", "Tefal / Deutschland"),
     "TEFAL_IT": Region("tefal", "IT", "it", "Tefal / Italia"),
     "TEFAL_ES": Region("tefal", "ES", "es", "Tefal / España"),
+    "TEFAL_RO": Region("tefal", "RO", "ro", "Tefal / România"),
 }
 
 STEP_USER_SCHEMA = vol.Schema(
