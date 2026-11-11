@@ -1,6 +1,6 @@
 # Cookeo for Home Assistant
 
-Home Assistant integration for the Moulinex Cookeo multicookers and Companion cooking robots connected to Wi-Fi. It goes through the same cloud as the Moulinex app, so the appliance must already be set up in that app.
+Home Assistant integration for the Moulinex Cookeo multicookers and Companion cooking robots connected to Wi-Fi, including their Tefal versions sold as Cook4me. It goes through the same cloud as the Moulinex and My Tefal apps, so the appliance must already be set up in one of them.
 
 ## Supported appliances
 
@@ -14,8 +14,10 @@ Home Assistant integration for the Moulinex Cookeo multicookers and Companion co
 | Cookeo Wi-Fi 10-in-1 | |
 | Cookeo Infinity | |
 | i-Companion Touch XL | |
+| Tefal Cook4me Touch WiFi | |
+| Tefal Cook4me Touch Pro WiFi | |
 
-The untested models use the same cloud and should work. Bluetooth-only models such as the Cookeo Connect are not supported, and neither are other SEB appliances such as the OptiGrill.
+The untested models use the same cloud and should work. The Tefal Cook4me Touch WiFi is the same appliance as the Cookeo Touch WiFi under the Tefal brand, and works with the My Tefal app. Bluetooth-only models such as the Cookeo Connect are not supported, and neither are other SEB appliances such as the OptiGrill.
 
 ## Entities
 
@@ -51,7 +53,7 @@ To install it manually, copy `custom_components/cookeo/` into the `custom_compon
 
 ## Setup
 
-Pick the region of your Moulinex account, then enter the email and password you use in the Moulinex app. Home Assistant logs in once and keeps only a login token, which it renews on its own. The password is not stored.
+Pick the region of your account, Moulinex or Tefal depending on the app you use, then enter the email and password you use in that app. Each region has its own list of appliances: if setup finds none, pick the brand and country where the account was created. Home Assistant logs in once and keeps only a login token, which it renews on its own. The password is not stored.
 
 When the account has several appliances, setup asks which one to add. Run it again to add the others.
 
